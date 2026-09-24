@@ -63,23 +63,10 @@ This laboratory experiment evaluates the performance, speedup, and architectural
 
 ## 6. Discussion & Technical Findings
 
-### 6.1 Algorithmic Complexity & Operational Intensity
-Matrix multiplication of two $4000 \times 4000$ matrices requires $2 N^3 = 128 \times 10^9$ floating-point operations ($128 \text{ GFLOPs}$). The operational intensity $I = N / 12 = 333.33 \text{ FLOPs/byte}$ indicates that the workload is compute-heavy when data resides in L1/L2 caches, but turns into a memory bandwidth bottleneck when cache eviction forces main RAM fetches.
-
-### 6.2 Cache Locality & Serial CPU Execution
-In the standard $i-j-k$ loop structure, Matrix A is accessed with unit stride ($\text{stride-}1$), while Matrix B is accessed with non-unit stride ($\text{stride-}N = 32,000$ bytes stride). This non-contiguous access pattern generates severe L1/L2 cache misses on single CPU cores, resulting in a low baseline performance of $0.37 \text{ GFLOPS}$ ($348.02 \text{ seconds}$).
-
-### 6.3 Shared Memory Contention in OpenMP
-OpenMP parallelizes the outer loop across $8$ CPU threads. While the workload is evenly divided ($500$ iterations per thread), all 8 cores compete for the same socket's shared L3 cache and memory bus channels. Memory bus saturation limits OpenMP speedup to $2.63\times$ ($132.46 \text{ seconds}$) versus the theoretical $8.0\times$ linear peak.
-
-### 6.4 Distributed Memory Scaling in MPI
-MPI assigns $1000$ matrix rows to each node across a 4-node VM cluster. Because each virtual machine runs with its own isolated guest RAM controller, memory bus contention is significantly reduced compared to OpenMP. Despite TCP/IP inter-node communications (`MPI_Scatter` and `MPI_Gather` totaling $128 \text{ MB}$ data), the $O(N^3)$ computational cost dominates the $O(N^2)$ communication cost by $1000:1$, allowing MPI to achieve $3.74\times$ speedup ($92.98 \text{ seconds}$, $93.50\%$ parallel efficiency).
-
-### 6.5 SIMT Massively Parallel Acceleration in CUDA GPU
-The CUDA architecture maps the computation across $62,500$ thread blocks of $256$ threads each ($16,000,000$ active logical threads). The NVIDIA GPU achieves a $2109.18\times$ speedup ($0.1650 \text{ seconds}$ total phase time, $874.06 \text{ GFLOPS}$ kernel performance) due to:
-- Hardware-level SIMT warp execution ($32$ threads per warp).
-- Automatic global VRAM memory coalescing across adjacent threads.
-- Zero-cycle warp context switching for memory latency hiding.
+1. **Sequential CPU Baseline ($348.02\text{s}$)**: Matrix multiplication requires $128 \text{ GFLOPs}$. Non-contiguous column access in Matrix B causes frequent L1/L2 cache misses that stall CPU execution.
+2. **OpenMP Shared Memory ($132.46\text{s}, 2.63\times$ Speedup)**: Outer loop parallelization across 8 threads reduces time, but memory bus contention on shared RAM limits speedup below theoretical linear scaling ($8\times$).
+3. **MPI Cluster Scaling ($92.98\text{s}, 3.74\times$ Speedup)**: Assigning 1000 rows per VM node eliminates RAM bandwidth bottlenecks due to separate memory controllers, scaling efficiently despite network data transfer.
+4. **CUDA GPU Acceleration ($0.1650\text{s}, 2109.18\times$ Speedup)**: Assigning one thread per output element ($16,000,000$ threads) allows the GPU to achieve massive SIMT hardware parallelism and hardware memory coalescing.
 
 ---
 

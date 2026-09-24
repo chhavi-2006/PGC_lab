@@ -1,7 +1,7 @@
 # LABORATORY EXPERIMENT REPORT
 
 **Course Title:** Parallel and Grid Computing (PGC)  
-**Experiment Title:** Performance Analysis of Matrix Multiplication using Sequential, OpenMP, MPI, and CUDA Paradigms  
+**Experiment Title:** Performance Analysis of Matrix Multiplication using Sequential, OpenMP, MPI, and CUDA Paradigms in C and C++  
 **Author / Repository Owner:** `chhavi-2006`  
 **Repository:** [https://github.com/chhavi-2006/PGC_lab](https://github.com/chhavi-2006/PGC_lab)  
 **Date:** September 2026  
@@ -10,27 +10,27 @@
 
 ## 1. Abstract
 
-This laboratory experiment evaluates the performance, speedup, and architectural trade-offs of four parallel computing models for a dense $4000 \times 4000$ matrix multiplication problem. We implemented: (1) a baseline single-threaded C program in WSL2 Ubuntu, (2) an OpenMP shared-memory multi-threaded program, (3) an Open MPI distributed-memory program across a 4-node VM cluster, and (4) a CUDA GPU kernel executed on an NVIDIA GPU. All implementations produced the verified mathematical result $C[0][0] = 4000.00$. Empirical results demonstrate that while the sequential baseline took **348.02 seconds**, OpenMP (8 threads) reduced execution to **132.46 seconds** ($2.63\times$ speedup), Open MPI (4 nodes) reduced execution to **92.98 seconds** ($3.74\times$ speedup), and CUDA GPU acceleration achieved an extraordinary **0.1650 seconds** total phase time ($2109.18\times$ speedup) and **0.1464 seconds** kernel execution time ($2376.51\times$ speedup).
+This laboratory experiment evaluates the performance, speedup, and architectural trade-offs of four parallel computing models for a dense $4000 \times 4000$ matrix multiplication problem, implemented in both C and C++. We implemented: (1) a baseline single-threaded C/C++ program in WSL2 Ubuntu, (2) an OpenMP shared-memory multi-threaded C/C++ program, (3) an Open MPI distributed-memory C/C++ program across a 4-node VM cluster, and (4) a CUDA GPU kernel executed on an NVIDIA GPU. All implementations produced the verified mathematical result $C[0][0] = 4000.00$. Empirical results demonstrate that while the sequential baseline took **348.02 seconds**, OpenMP (8 threads) reduced execution to **132.46 seconds** ($2.63\times$ speedup), Open MPI (4 nodes) reduced execution to **92.98 seconds** ($3.74\times$ speedup), and CUDA GPU acceleration achieved an extraordinary **0.1650 seconds** total phase time ($2109.18\times$ speedup) and **0.1464 seconds** kernel execution time ($2376.51\times$ speedup).
 
 ---
 
 ## 2. Experimental Objectives
 
-1. Program the dense $4000 \times 4000$ matrix multiplication algorithm ($C = A \times B$) across Sequential, OpenMP, Open MPI, and CUDA GPU paradigms.
+1. Program the dense $4000 \times 4000$ matrix multiplication algorithm ($C = A \times B$) in both C and C++ across Sequential, OpenMP, Open MPI, and CUDA GPU paradigms.
 2. Verify numerical accuracy by confirming $C[0][0] = 4000.00$ ($A[i][j]=1.0, B[i][j]=1.0$).
 3. Measure wall-clock execution time and calculate speedup factors ($S = T_{\text{seq}} / T_{\text{par}}$) and throughput (GFLOPS).
 4. Analyze performance limitations related to memory bandwidth, network latency, and SIMT thread scheduling.
 
 ---
 
-## 3. System Architecture & Resource Allocation
+## 3. System Architecture & Source Code Matrix
 
-| Paradigm | Environment | Compute Units | Memory Architecture | Compiler / Toolchain |
+| Paradigm | C Source File | C++ Source File | Compute Units | Compiler / Toolchain |
 | :--- | :--- | :--- | :--- | :--- |
-| **Sequential** | WSL2 Ubuntu 22.04 | 1 CPU Core | Single Memory Space | GCC `-O2` |
-| **OpenMP** | WSL2 Ubuntu 22.04 | 8 CPU Threads | Shared System RAM | GCC `-O2 -fopenmp` |
-| **Open MPI** | 4-Node VM Cluster | 4 VM Processes | Distributed Memory | Open MPI `mpicc -O2` |
-| **CUDA GPU** | NVIDIA GPU System | 16,000,000 Threads | Dedicated VRAM | NVIDIA `nvcc -O2` |
+| **Sequential** | `src/matrix_sequential.c` | `src/matrix_sequential.cpp` | 1 CPU Core | `gcc` / `g++` `-O2` |
+| **OpenMP** | `src/matrix_openmp.c` | `src/matrix_openmp.cpp` | 8 CPU Threads | `gcc` / `g++` `-O2 -fopenmp` |
+| **Open MPI** | `src/matrix_mpi.c` | `src/matrix_mpi.cpp` | 4 VM Processes | `mpicc` / `mpicxx` `-O2` |
+| **CUDA GPU** | `src/matrix_cuda.cu` | `src/matrix_cuda.cpp` | 16,000,000 Threads | NVIDIA `nvcc -O2` |
 
 ---
 

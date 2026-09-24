@@ -1,6 +1,7 @@
 # Parallel Matrix Multiplication Performance Analysis: Sequential, OpenMP, MPI, and CUDA
 
 [![Course](https://img.shields.io/badge/Course-Parallel%20%26%20Grid%20Computing%20(PGC)-blue.svg)](#)
+[![Languages](https://img.shields.io/badge/Languages-C%20%7C%20C%2B%2B%20%7C%20CUDA-purple.svg)](#)
 [![Models](https://img.shields.io/badge/Models-Sequential%20%7C%20OpenMP%20%7C%20MPI%20%7C%20CUDA-orange.svg)](#)
 [![Matrix Size](https://img.shields.io/badge/Matrix%20Size-4000%20x%204000-green.svg)](#)
 [![Status](https://img.shields.io/badge/Status-Completed-brightgreen.svg)](#)
@@ -9,13 +10,13 @@
 
 ## Executive Summary
 
-This repository contains the complete experimental setup, empirical benchmark data, performance visualization, and comprehensive technical analysis comparing four computing paradigms for a **$4000 \times 4000$ Matrix Multiplication** workload:
-1. **Sequential CPU Baseline** (Single-threaded execution in WSL2 Ubuntu)
+This repository contains the complete experimental setup, empirical benchmark data, performance visualization, source code implementations in both **C** and **C++**, and comprehensive technical analysis comparing four computing paradigms for a **$4000 \times 4000$ Matrix Multiplication** workload:
+1. **Sequential Baseline** (Single-threaded execution in WSL2 Ubuntu)
 2. **OpenMP Shared-Memory Parallelism** (8-thread parallelization on multi-core CPU)
 3. **MPI Distributed-Memory Parallelism** (4-node VM cluster with message passing)
 4. **CUDA GPU Acceleration** (Massively parallel execution on NVIDIA GPU with 16,000,000 threads)
 
-All implementations maintain strict numerical consistency, verifying $C[0][0] = 4000.00$.
+All C and C++ implementations maintain strict numerical consistency, verifying $C[0][0] = 4000.00$.
 
 ### Key Finding
 
@@ -28,13 +29,14 @@ All implementations maintain strict numerical consistency, verifying $C[0][0] = 
 1. [Project Objectives](#1-project-objectives)
 2. [Computing Architecture Comparison](#2-computing-architecture-comparison)
 3. [System & Hardware Specifications](#3-system--hardware-specifications)
-4. [Experimental Procedure](#4-experimental-procedure)
-5. [Empirical Results & Screenshots](#5-empirical-results--screenshots)
-6. [Performance Comparison Table](#6-performance-comparison-table)
-7. [Metric Explanations & Visualizations](#7-metric-explanations--visualizations)
-8. [Technical Analysis & Discussion](#8-technical-analysis--discussion)
-9. [Conclusion & Engineering Takeaways](#9-conclusion--engineering-takeaways)
-10. [Repository Structure & Reproduction](#10-repository-structure--reproduction)
+4. [Source Code Implementations (C & C++)](#4-source-code-implementations-c--c)
+5. [Experimental Procedure & Compilation](#5-experimental-procedure--compilation)
+6. [Empirical Results & Screenshots](#6-empirical-results--screenshots)
+7. [Performance Comparison Table](#7-performance-comparison-table)
+8. [Metric Explanations & Visualizations](#8-metric-explanations--visualizations)
+9. [Technical Analysis & Discussion](#9-technical-analysis--discussion)
+10. [Conclusion & Engineering Takeaways](#10-conclusion--engineering-takeaways)
+11. [Repository Structure & Reproduction](#11-repository-structure--reproduction)
 
 ---
 
@@ -42,12 +44,12 @@ All implementations maintain strict numerical consistency, verifying $C[0][0] = 
 
 The primary objectives of this Parallel & Grid Computing (PGC) laboratory experiment are:
 
-1. **Implementation**: Program the dense matrix multiplication algorithm ($C = A \times B$) for $4000 \times 4000$ double/float precision matrices across four programming paradigms:
-   - Single-threaded C (Sequential Baseline)
-   - Multi-threaded C with OpenMP directives (Shared Memory)
-   - Distributed C with Open MPI framework (Message Passing interface across 4 VMs)
+1. **Implementation**: Program the dense matrix multiplication algorithm ($C = A \times B$) for $4000 \times 4000$ double/float precision matrices in both **C** and **C++** across four programming paradigms:
+   - Single-threaded C/C++ (Sequential Baseline)
+   - Multi-threaded C/C++ with OpenMP directives (Shared Memory)
+   - Distributed C/C++ with Open MPI framework (Message Passing interface across 4 VMs)
    - CUDA C/C++ kernel execution (NVIDIA GPU Massively Parallel Execution)
-2. **Verification**: Validate output mathematical correctness by checking $C[0][0] = 4000.00$ across all 4 implementations ($A[i][j]=1.0, B[i][j]=1.0$).
+2. **Verification**: Validate output mathematical correctness by checking $C[0][0] = 4000.00$ across all implementations ($A[i][j]=1.0, B[i][j]=1.0$).
 3. **Benchmarking**: Accurately measure wall-clock execution time and calculate speedup factors ($S = T_{\text{seq}} / T_{\text{par}}$) and computational throughput (GFLOPS).
 4. **Architectural Evaluation**: Quantify memory bandwidth bottlenecks, thread synchronization overheads, network communication latencies, and SIMT GPU throughput.
 
@@ -110,62 +112,74 @@ To ensure direct comparability, identical workload dimensions were used across a
 | **Memory Architecture**| Single RAM Space | Shared System RAM | Distributed VM Memory | Dedicated VRAM |
 | **Matrix Size ($N$)** | $4000 \times 4000$ | $4000 \times 4000$ | $4000 \times 4000$ | $4000 \times 4000$ |
 | **Total Operations** | $128 \times 10^9$ FLOPs | $128 \times 10^9$ FLOPs | $128 \times 10^9$ FLOPs | $128 \times 10^9$ FLOPs |
-| **Compiler / Tool** | GCC `-O2` | GCC `-O2 -fopenmp` | Open MPI `mpicc -O2` | NVIDIA `nvcc -O2` |
+| **C/C++ Compilers** | GCC / G++ `-O2` | GCC / G++ `-O2 -fopenmp`| `mpicc` / `mpicxx` `-O2` | NVIDIA `nvcc -O2` |
 | **Expected $C[0][0]$** | $4000.00$ | $4000.00$ | $4000.00$ | $4000.00$ |
 
 ---
 
-## 4. Experimental Procedure
+## 4. Source Code Implementations (C & C++)
+
+The repository includes both **C** and **C++** versions for every computational model in the [`src/`](src/) directory:
+
+| Algorithm / Paradigm | C Source File | C++ Source File | Compilation Command (C / C++) |
+| :--- | :--- | :--- | :--- |
+| **Sequential** | [`src/matrix_sequential.c`](src/matrix_sequential.c) | [`src/matrix_sequential.cpp`](src/matrix_sequential.cpp) | `gcc -O2 src/matrix_sequential.c` <br> `g++ -O2 src/matrix_sequential.cpp` |
+| **OpenMP** | [`src/matrix_openmp.c`](src/matrix_openmp.c) | [`src/matrix_openmp.cpp`](src/matrix_openmp.cpp) | `gcc -O2 -fopenmp src/matrix_openmp.c` <br> `g++ -O2 -fopenmp src/matrix_openmp.cpp` |
+| **MPI Cluster** | [`src/matrix_mpi.c`](src/matrix_mpi.c) | [`src/matrix_mpi.cpp`](src/matrix_mpi.cpp) | `mpicc -O2 src/matrix_mpi.c` <br> `mpicxx -O2 src/matrix_mpi.cpp` |
+| **CUDA GPU** | [`src/matrix_cuda.cu`](src/matrix_cuda.cu) | [`src/matrix_cuda.cpp`](src/matrix_cuda.cpp) | `nvcc -O2 src/matrix_cuda.cu` <br> `nvcc -O2 src/matrix_cuda.cpp` |
+
+---
+
+## 5. Experimental Procedure & Compilation
 
 ### Part A: Sequential Matrix Multiplication
-1. Initialize matrices $A$ and $B$ with `1.0` and matrix $C$ with `0.0`.
-2. Execute triple nested loop ($i, j, k$) sequentially on a single thread.
-3. Record execution duration using standard C `clock()`.
-
 ```bash
-# Compile and run Sequential baseline
-gcc -O2 src/matrix_sequential.c -o src/matrix_sequential
-./src/matrix_sequential
+# C Compilation & Run
+gcc -O2 src/matrix_sequential.c -o src/matrix_sequential_c
+./src/matrix_sequential_c
+
+# C++ Compilation & Run
+g++ -O2 src/matrix_sequential.cpp -o src/matrix_sequential_cpp
+./src/matrix_sequential_cpp
 ```
 
 ### Part B: OpenMP Shared-Memory Parallelism
-1. Configure OpenMP thread count: `export OMP_NUM_THREADS=8`.
-2. Parallelize the outer loop with `#pragma omp parallel for private(j, k)`.
-3. Monitor active threads concurrently using `htop`.
-
 ```bash
-# Compile and run OpenMP implementation
-gcc -O2 -fopenmp src/matrix_openmp.c -o src/matrix_openmp
 export OMP_NUM_THREADS=8
-./src/matrix_openmp
+
+# C Compilation & Run
+gcc -O2 -fopenmp src/matrix_openmp.c -o src/matrix_openmp_c
+./src/matrix_openmp_c
+
+# C++ Compilation & Run
+g++ -O2 -fopenmp src/matrix_openmp.cpp -o src/matrix_openmp_cpp
+./src/matrix_openmp_cpp
 ```
 
 ### Part C: MPI Distributed Cluster
-1. Configure master and 3 worker VMs (`master`, `worker1`, `worker2`, `worker3`).
-2. Establish passwordless SSH connectivity across nodes.
-3. Use `MPI_Scatter` to distribute 1000 rows of Matrix $A$ to each process, `MPI_Bcast` Matrix $B$, and `MPI_Gather` partial results into Matrix $C$.
-
 ```bash
-# Compile and launch 4 MPI processes across cluster
-mpicc -O2 src/matrix_mpi.c -o src/matrix_mpi
-mpirun -np 4 --hostfile hosts ./src/matrix_mpi
+# C Compilation & Run
+mpicc -O2 src/matrix_mpi.c -o src/matrix_mpi_c
+mpirun -np 4 --hostfile hosts ./src/matrix_mpi_c
+
+# C++ Compilation & Run
+mpicxx -O2 src/matrix_mpi.cpp -o src/matrix_mpi_cpp
+mpirun -np 4 --hostfile hosts ./src/matrix_mpi_cpp
 ```
 
 ### Part D: CUDA GPU Acceleration
-1. Allocate host and device memory using `cudaMalloc`.
-2. Transfer matrices $A$ and $B$ to GPU VRAM using `cudaMemcpyHostToDevice`.
-3. Launch kernel `matMulKernel<<<grid, block>>>` with $250 \times 250$ blocks of $16 \times 16$ threads ($16,000,000$ threads total).
-4. Copy result matrix $C$ back to host via `cudaMemcpyDeviceToHost`.
-
 ```bash
-# Compile and execute CUDA GPU kernel
-nvcc -O2 src/matrix_cuda.cu -o src/matrix_cuda
-./src/matrix_cuda
+# CUDA C (.cu) & C++ (.cpp) Compilation & Run
+nvcc -O2 src/matrix_cuda.cu -o src/matrix_cuda_cu
+./src/matrix_cuda_cu
+
+nvcc -O2 src/matrix_cuda.cpp -o src/matrix_cuda_cpp
+./src/matrix_cuda_cpp
 ```
 
 ---
 
-## 5. Empirical Results & Screenshots
+## 6. Empirical Results & Screenshots
 
 ### Sequential Execution Output (348.02s)
 
@@ -197,7 +211,7 @@ Below is the verified screenshot [`images/4_htop_resource_monitor.jpeg`](images/
 
 ---
 
-## 6. Performance Comparison Table
+## 7. Performance Comparison Table
 
 The following table summarizes the empirical results recorded across all four execution models for the $4000 \times 4000$ matrix multiplication problem:
 
@@ -211,7 +225,7 @@ The following table summarizes the empirical results recorded across all four ex
 
 ---
 
-## 7. Metric Explanations & Visualizations
+## 8. Metric Explanations & Visualizations
 
 ### Chart 1: Execution Time Comparison (Logarithmic Scale)
 
@@ -237,7 +251,7 @@ The following table summarizes the empirical results recorded across all four ex
 
 ---
 
-## 8. Technical Analysis & Discussion
+## 9. Technical Analysis & Discussion
 
 ### 1. Sequential CPU Baseline ($O(N^3)$ Complexity)
 Matrix multiplication requires $N^3$ multiplications and $N^3$ additions ($2N^3$ floating-point operations total). For $N=4000$, this equals $128,000,000,000$ operations. On a single CPU thread, cache line eviction and serial memory access limit execution speed to $348.02$ seconds.
@@ -253,7 +267,7 @@ CUDA maps the matrix onto a $2D$ grid of $62,500$ thread blocks ($16 \times 16 =
 
 ---
 
-## 9. Conclusion & Engineering Takeaways
+## 10. Conclusion & Engineering Takeaways
 
 1. **Massive GPU Dominance**: CUDA GPU acceleration reduces execution time from **348.02 seconds to 0.1650 seconds**, achieving a **2109.18× overall speedup**.
 2. **Shared vs Distributed Memory**: MPI scaling outperforms OpenMP on large matrices because distributed nodes possess dedicated memory channels, whereas OpenMP threads compete for host RAM bandwidth.
@@ -264,7 +278,7 @@ CUDA maps the matrix onto a $2D$ grid of $62,500$ thread blocks ($16 \times 16 =
 
 ---
 
-## 10. Repository Structure & Reproduction
+## 11. Repository Structure & Reproduction
 
 ### Directory Tree
 
@@ -284,16 +298,20 @@ PGC_lab/
 │   ├── speedup_comparison.png                # Speedup Factor Comparison Chart
 │   └── overall_performance_dashboard.png      # 4-Panel Performance Dashboard
 │
-├── src/                                       # Source Code Files
+├── src/                                       # C and C++ Source Code Files
 │   ├── matrix_sequential.c                    # Single-threaded C implementation
+│   ├── matrix_sequential.cpp                  # Single-threaded C++ implementation
 │   ├── matrix_openmp.c                        # Multi-threaded OpenMP C implementation
-│   ├── matrix_mpi.c                           # Distributed Open MPI implementation
-│   └── matrix_cuda.cu                         # Massively parallel CUDA C++ implementation
+│   ├── matrix_openmp.cpp                      # Multi-threaded OpenMP C++ implementation
+│   ├── matrix_mpi.c                           # Distributed Open MPI C implementation
+│   ├── matrix_mpi.cpp                         # Distributed Open MPI C++ implementation
+│   ├── matrix_cuda.cu                         # Massively parallel CUDA C/C++ kernel
+│   └── matrix_cuda.cpp                        # Massively parallel CUDA C++ host/kernel
 │
 └── scripts/                                   # Automation & Plotting Scripts
     ├── generate_plots.py                      # Matplotlib Visualization Generator
     ├── parse_results.py                       # Benchmark Results Parser & Calculator
-    └── run_benchmarks.sh                      # Benchmark Execution Automation Script
+    └── run_benchmarks.sh                      # Benchmark Execution Automation Script (C & C++)
 ```
 
 ### Reproduction Steps
@@ -310,7 +328,7 @@ PGC_lab/
    python scripts/parse_results.py
    ```
 
-3. **Build & Execute Source Files**:
+3. **Build & Execute C/C++ Source Files**:
    ```bash
    chmod +x scripts/run_benchmarks.sh
    ./scripts/run_benchmarks.sh

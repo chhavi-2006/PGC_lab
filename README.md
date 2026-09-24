@@ -1,12 +1,6 @@
 # Parallel Matrix Multiplication Performance Analysis:
 
-[![Course](https://img.shields.io/badge/Course-Parallel%20%26%20Grid%20Computing%20(PGC)-blue.svg)](#)
-[![Languages](https://img.shields.io/badge/Languages-C%20%7C%20C%2B%2B%20%7C%20CUDA-purple.svg)](#)
-[![Models](https://img.shields.io/badge/Models-Sequential%20%7C%20OpenMP%20%7C%20MPI%20%7C%20CUDA-orange.svg)](#)
-[![Matrix Size](https://img.shields.io/badge/Matrix%20Size-4000%20x%204000-green.svg)](#)
-[![Status](https://img.shields.io/badge/Status-Completed-brightgreen.svg)](#)
 
----
 
 ## Executive Summary
 
@@ -263,41 +257,6 @@ CUDA maps the matrix onto a $2D$ grid of $62,500$ thread blocks ($16 \times 16 =
 
 ---
 
-## 11. Repository Structure & Reproduction
-
-### Directory Tree
-
-```
-PGC_lab/
-│
-├── README.md                                  # Main Project & Benchmark Report
-├── LAB_REPORT.md                              # Formal Academic Lab Report Submission
-│
-├── images/                                    # Empirical Screenshots & Generated Visualizations
-│   ├── 1_sequential_execution.jpeg            # Sequential Terminal Screenshot (348.02s)
-│   ├── 2_openmp_execution.jpeg                # OpenMP Terminal Screenshot (132.46s)
-│   ├── 3_openmp_verification.jpeg            # OpenMP Output Verification Screenshot
-│   ├── 4_htop_resource_monitor.jpeg          # htop Multi-Core CPU Monitor Screenshot
-│   ├── 5_sequential_verification.jpeg        # Sequential Output Verification Screenshot
-│   ├── execution_time_comparison.png         # Log-Scale Execution Time Chart
-│   ├── speedup_comparison.png                # Speedup Factor Comparison Chart
-│   └── overall_performance_dashboard.png      # 4-Panel Performance Dashboard
-│
-├── src/                                       # C and C++ Source Code Files
-│   ├── matrix_sequential.c                    # Single-threaded C implementation
-│   ├── matrix_sequential.cpp                  # Single-threaded C++ implementation
-│   ├── matrix_openmp.c                        # Multi-threaded OpenMP C implementation
-│   ├── matrix_openmp.cpp                      # Multi-threaded OpenMP C++ implementation
-│   ├── matrix_mpi.c                           # Distributed Open MPI C implementation
-│   ├── matrix_mpi.cpp                         # Distributed Open MPI C++ implementation
-│   ├── matrix_cuda.cu                         # Massively parallel CUDA C/C++ kernel
-│   └── matrix_cuda.cpp                        # Massively parallel CUDA C++ host/kernel
-│
-└── scripts/                                   # Automation & Plotting Scripts
-    ├── generate_plots.py                      # Matplotlib Visualization Generator
-    ├── parse_results.py                       # Benchmark Results Parser & Calculator
-    └── run_benchmarks.sh                      # Benchmark Execution Automation Script (C & C++)
-```
 
 ### Reproduction Steps
 

@@ -1,12 +1,6 @@
 # Parallel Matrix Multiplication Performance Analysis: Sequential, OpenMP, MPI, and CUDA
 
-[![Course](https://img.shields.io/badge/Course-Parallel%20%26%20Grid%20Computing%20(PGC)-blue.svg)](#)
-[![Languages](https://img.shields.io/badge/Languages-C%20%7C%20C%2B%2B%20%7C%20CUDA-purple.svg)](#)
-[![Models](https://img.shields.io/badge/Models-Sequential%20%7C%20OpenMP%20%7C%20MPI%20%7C%20CUDA-orange.svg)](#)
-[![Matrix Size](https://img.shields.io/badge/Matrix%20Size-4000%20x%204000-green.svg)](#)
-[![Status](https://img.shields.io/badge/Status-Completed-brightgreen.svg)](#)
 
----
 
 ## Executive Summary
 
@@ -136,54 +130,7 @@ The repository includes both **C** and **C++** versions for every computational 
 
 ---
 
-## 5. Experimental Procedure & Compilation
 
-### Part A: Sequential Matrix Multiplication
-```bash
-# C Compilation & Run
-gcc -O2 src/matrix_sequential.c -o src/matrix_sequential_c
-./src/matrix_sequential_c
-
-# C++ Compilation & Run
-g++ -O2 src/matrix_sequential.cpp -o src/matrix_sequential_cpp
-./src/matrix_sequential_cpp
-```
-
-### Part B: OpenMP Shared-Memory Parallelism
-```bash
-export OMP_NUM_THREADS=8
-
-# C Compilation & Run
-gcc -O2 -fopenmp src/matrix_openmp.c -o src/matrix_openmp_c
-./src/matrix_openmp_c
-
-# C++ Compilation & Run
-g++ -O2 -fopenmp src/matrix_openmp.cpp -o src/matrix_openmp_cpp
-./src/matrix_openmp_cpp
-```
-
-### Part C: MPI Distributed Cluster
-```bash
-# C Compilation & Run
-mpicc -O2 src/matrix_mpi.c -o src/matrix_mpi_c
-mpirun -np 4 --hostfile hosts ./src/matrix_mpi_c
-
-# C++ Compilation & Run
-mpicxx -O2 src/matrix_mpi.cpp -o src/matrix_mpi_cpp
-mpirun -np 4 --hostfile hosts ./src/matrix_mpi_cpp
-```
-
-### Part D: CUDA GPU Acceleration
-```bash
-# CUDA C (.cu) & C++ (.cpp) Compilation & Run
-nvcc -O2 src/matrix_cuda.cu -o src/matrix_cuda_cu
-./src/matrix_cuda_cu
-
-nvcc -O2 src/matrix_cuda.cpp -o src/matrix_cuda_cpp
-./src/matrix_cuda_cpp
-```
-
----
 
 ## 6. Empirical Results & Screenshots
 
@@ -193,7 +140,7 @@ Below are the verified screenshots [`images/1_sequential_execution.jpeg`](images
 
 ![Sequential Execution Terminal](images/1_sequential_execution.jpeg)
 
-*Figure 1: Sequential Matrix Multiplication output ($4000 \times 4000$, Execution Time = 348.023990s, $C[0][0] = 4000.00$).*
+*Figure 1: Sequential Matrix Multiplication output *
 
 ---
 
@@ -203,7 +150,7 @@ Below are the verified screenshots [`images/2_openmp_execution.jpeg`](images/2_o
 
 ![OpenMP Execution Terminal](images/2_openmp_execution.jpeg)
 
-*Figure 2: OpenMP Matrix Multiplication output ($4000 \times 4000$, 8 Threads, Execution Time = 132.457362s, $C[0][0] = 4000.00$).*
+*Figure 2: OpenMP Matrix Multiplication output *
 
 ---
 
@@ -245,7 +192,7 @@ The following table summarizes the empirical results recorded across all four ex
 
 ![Speedup Comparison](images/speedup_comparison.png)
 
-*Figure 5: Speedup factor over Sequential baseline ($1.00\times \rightarrow 2.63\times \rightarrow 3.74\times \rightarrow 2109.18\times$).*
+*Figure 5: Speedup factor over Sequential baseline.*
 
 ---
 
@@ -365,41 +312,6 @@ where $s$ is the parallelizable fraction of the workload and $(1 - s)$ is the st
 
 ---
 
-## 11. Repository Structure & Reproduction
-
-### Directory Tree
-
-```
-PGC_lab/
-│
-├── README.md                                  # Main Project & Benchmark Report
-├── LAB_REPORT.md                              # Formal Academic Lab Report Submission
-│
-├── images/                                    # Empirical Screenshots & Generated Visualizations
-│   ├── 1_sequential_execution.jpeg            # Sequential Terminal Screenshot (348.02s)
-│   ├── 2_openmp_execution.jpeg                # OpenMP Terminal Screenshot (132.46s)
-│   ├── 3_openmp_verification.jpeg            # OpenMP Output Verification Screenshot
-│   ├── 4_htop_resource_monitor.jpeg          # htop Multi-Core CPU Monitor Screenshot
-│   ├── 5_sequential_verification.jpeg        # Sequential Output Verification Screenshot
-│   ├── execution_time_comparison.png         # Log-Scale Execution Time Chart
-│   ├── speedup_comparison.png                # Speedup Factor Comparison Chart
-│   └── overall_performance_dashboard.png      # 4-Panel Performance Dashboard
-│
-├── src/                                       # C and C++ Source Code Files
-│   ├── matrix_sequential.c                    # Single-threaded C implementation
-│   ├── matrix_sequential.cpp                  # Single-threaded C++ implementation
-│   ├── matrix_openmp.c                        # Multi-threaded OpenMP C implementation
-│   ├── matrix_openmp.cpp                      # Multi-threaded OpenMP C++ implementation
-│   ├── matrix_mpi.c                           # Distributed Open MPI C implementation
-│   ├── matrix_mpi.cpp                         # Distributed Open MPI C++ implementation
-│   ├── matrix_cuda.cu                         # Massively parallel CUDA C/C++ kernel
-│   └── matrix_cuda.cpp                        # Massively parallel CUDA C++ host/kernel
-│
-└── scripts/                                   # Automation & Plotting Scripts
-    ├── generate_plots.py                      # Matplotlib Visualization Generator
-    ├── parse_results.py                       # Benchmark Results Parser & Calculator
-    └── run_benchmarks.sh                      # Benchmark Execution Automation Script (C & C++)
-```
 
 ### Reproduction Steps
 

@@ -1,11 +1,5 @@
 # Parallel Matrix Multiplication Performance Analysis: Sequential, OpenMP, MPI, and CUDA
 
-[![Course](https://img.shields.io/badge/Course-Parallel%20%26%20Grid%20Computing%20(PGC)-blue.svg)](#)
-[![Models](https://img.shields.io/badge/Models-Sequential%20%7C%20OpenMP%20%7C%20MPI%20%7C%20CUDA-orange.svg)](#)
-[![Matrix Size](https://img.shields.io/badge/Matrix%20Size-4000%20x%204000-green.svg)](#)
-[![Status](https://img.shields.io/badge/Status-Completed-brightgreen.svg)](#)
-
----
 
 ## Executive Summary
 

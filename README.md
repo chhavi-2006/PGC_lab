@@ -249,37 +249,6 @@ CUDA maps the matrix onto a $2D$ grid of $62,500$ thread blocks ($16 \times 16 =
 
 ---
 
-## 10. Repository Structure & Reproduction
-
-### Directory Tree
-
-```
-PGC_lab/
-│
-├── README.md                                  # Main Project & Benchmark Report
-├── LAB_REPORT.md                              # Formal Academic Lab Report Submission
-│
-├── images/                                    # Empirical Screenshots & Generated Visualizations
-│   ├── 1_sequential_execution.jpeg            # Sequential Terminal Screenshot (348.02s)
-│   ├── 2_openmp_execution.jpeg                # OpenMP Terminal Screenshot (132.46s)
-│   ├── 3_openmp_verification.jpeg            # OpenMP Output Verification Screenshot
-│   ├── 4_htop_resource_monitor.jpeg          # htop Multi-Core CPU Monitor Screenshot
-│   ├── 5_sequential_verification.jpeg        # Sequential Output Verification Screenshot
-│   ├── execution_time_comparison.png         # Log-Scale Execution Time Chart
-│   ├── speedup_comparison.png                # Speedup Factor Comparison Chart
-│   └── overall_performance_dashboard.png      # 4-Panel Performance Dashboard
-│
-├── src/                                       # Source Code Files
-│   ├── matrix_sequential.c                    # Single-threaded C implementation
-│   ├── matrix_openmp.c                        # Multi-threaded OpenMP C implementation
-│   ├── matrix_mpi.c                           # Distributed Open MPI implementation
-│   └── matrix_cuda.cu                         # Massively parallel CUDA C++ implementation
-│
-└── scripts/                                   # Automation & Plotting Scripts
-    ├── generate_plots.py                      # Matplotlib Visualization Generator
-    ├── parse_results.py                       # Benchmark Results Parser & Calculator
-    └── run_benchmarks.sh                      # Benchmark Execution Automation Script
-```
 
 ### Reproduction Steps
 

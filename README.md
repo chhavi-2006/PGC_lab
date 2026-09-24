@@ -53,22 +53,7 @@ The primary objectives of this Parallel & Grid Computing (PGC) laboratory experi
 
 ---
 
-## 2. Computing Architecture Comparison
 
-```mermaid
-graph TD
-    WSL["Windows Host / WSL2 Ubuntu"]
-    
-    WSL --> PartA["Part A: Sequential Baseline (1 CPU Core)"]
-    WSL --> PartB["Part B: OpenMP Shared Memory (8 Threads)"]
-    WSL --> PartC["Part C: MPI Distributed Cluster (4 Nodes / VMs)"]
-    WSL --> PartD["Part D: CUDA GPU Acceleration (16M Threads)"]
-    
-    PartA --> Results["Speedup & GFLOPS Benchmark Analysis"]
-    PartB --> Results
-    PartC --> Results
-    PartD --> Results
-```
 
 ### Architectural Models Comparison
 

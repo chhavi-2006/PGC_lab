@@ -119,7 +119,7 @@ Below are the verified screenshots [`images/1_sequential_execution.jpeg`](images
 
 ![Sequential Execution Terminal](images/1_sequential_execution.jpeg)
 
-*Figure 1: Sequential Matrix Multiplication output ($4000 \times 4000$, Execution Time = 348.023990s, $C[0][0] = 4000.00$).*
+*Figure 1: Sequential Matrix Multiplication output *
 
 ---
 
@@ -129,7 +129,7 @@ Below are the verified screenshots [`images/2_openmp_execution.jpeg`](images/2_o
 
 ![OpenMP Execution Terminal](images/2_openmp_execution.jpeg)
 
-*Figure 2: OpenMP Matrix Multiplication output ($4000 \times 4000$, 8 Threads, Execution Time = 132.457362s, $C[0][0] = 4000.00$).*
+*Figure 2: OpenMP Matrix Multiplication output *
 
 ---
 
@@ -171,7 +171,7 @@ The following table summarizes the empirical results recorded across all four ex
 
 ![Speedup Comparison](images/speedup_comparison.png)
 
-*Figure 5: Speedup factor over Sequential baseline ($1.00\times \rightarrow 2.63\times \rightarrow 3.74\times \rightarrow 2109.18\times$).*
+*Figure 5: Speedup factor over Sequential baseline.*
 
 ---
 

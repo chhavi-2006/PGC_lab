@@ -1,4 +1,4 @@
-# Parallel Matrix Multiplication Performance Analysis: Sequential, OpenMP, MPI, and CUDA
+# Parallel Matrix Multiplication Performance Analysis:
 
 
 ## Executive Summary

@@ -204,13 +204,7 @@ The following table summarizes the empirical results recorded across all four ex
 
 ## 8. Metric Explanations & Visualizations
 
-### Chart 1: Execution Time Comparison (Logarithmic Scale)
 
-![Execution Time Comparison](images/execution_time_comparison.png)
-
-*Figure 4: Execution time comparison across Sequential, OpenMP, MPI, and CUDA (Log Scale).*
-
----
 
 ### Chart 2: Speedup Factor Comparison
 

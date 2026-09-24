@@ -1,4 +1,4 @@
-# Parallel Matrix Multiplication Performance Analysis:
+# Parallel Matrix Multiplication Performance Analysis: Sequential, OpenMP, MPI, and CUDA
 
 [![Course](https://img.shields.io/badge/Course-Parallel%20%26%20Grid%20Computing%20(PGC)-blue.svg)](#)
 [![Languages](https://img.shields.io/badge/Languages-C%20%7C%20C%2B%2B%20%7C%20CUDA-purple.svg)](#)
@@ -34,7 +34,13 @@ All C and C++ implementations maintain strict numerical consistency, verifying $
 6. [Empirical Results & Screenshots](#6-empirical-results--screenshots)
 7. [Performance Comparison Table](#7-performance-comparison-table)
 8. [Metric Explanations & Visualizations](#8-metric-explanations--visualizations)
-9. [Technical Analysis & Discussion](#9-technical-analysis--discussion)
+9. [Detailed Technical Analysis & Discussion](#9-detailed-technical-analysis--discussion)
+   - 9.1 [Computational Complexity & Operational Intensity](#91-computational-complexity--operational-intensity)
+   - 9.2 [Memory Hierarchy & Cache Locality Bottlenecks](#92-memory-hierarchy--cache-locality-bottlenecks)
+   - 9.3 [Shared-Memory OpenMP Scaling & Contention](#93-shared-memory-openmp-scaling--contention)
+   - 9.4 [Distributed-Memory MPI IPC & Network Overheads](#94-distributed-memory-mpi-ipc--network-overheads)
+   - 9.5 [Massively Parallel CUDA SIMT GPU Architecture](#95-massively-parallel-cuda-simt-gpu-architecture)
+   - 9.6 [Amdahl's Law Scaling & Parallel Efficiency](#96-amdahls-law-scaling--parallel-efficiency)
 10. [Conclusion & Engineering Takeaways](#10-conclusion--engineering-takeaways)
 11. [Repository Structure & Reproduction](#11-repository-structure--reproduction)
 
@@ -55,7 +61,22 @@ The primary objectives of this Parallel & Grid Computing (PGC) laboratory experi
 
 ---
 
+## 2. Computing Architecture Comparison
 
+```mermaid
+graph TD
+    WSL["Windows Host / WSL2 Ubuntu"]
+    
+    WSL --> PartA["Part A: Sequential Baseline (1 CPU Core)"]
+    WSL --> PartB["Part B: OpenMP Shared Memory (8 Threads)"]
+    WSL --> PartC["Part C: MPI Distributed Cluster (4 Nodes / VMs)"]
+    WSL --> PartD["Part D: CUDA GPU Acceleration (16M Threads)"]
+    
+    PartA --> Results["Speedup & GFLOPS Benchmark Analysis"]
+    PartB --> Results
+    PartC --> Results
+    PartD --> Results
+```
 
 ### Architectural Models Comparison
 
@@ -236,19 +257,100 @@ The following table summarizes the empirical results recorded across all four ex
 
 ---
 
-## 9. Technical Analysis & Discussion
+## 9. Detailed Technical Analysis & Discussion
 
-### 1. Sequential CPU Baseline ($O(N^3)$ Complexity)
-Matrix multiplication requires $N^3$ multiplications and $N^3$ additions ($2N^3$ floating-point operations total). For $N=4000$, this equals $128,000,000,000$ operations. On a single CPU thread, cache line eviction and serial memory access limit execution speed to $348.02$ seconds.
+### 9.1 Computational Complexity & Operational Intensity
 
-### 2. OpenMP Shared-Memory Acceleration ($2.63\times$ Speedup)
-By applying `#pragma omp parallel for`, the $4000$ outer loop iterations are divided into chunks of $500$ iterations across $8$ threads. However, because all threads share the same L3 cache and memory bus, memory bandwidth contention prevents an ideal linear $8.0\times$ speedup, yielding $2.63\times$ real-world speedup.
+The multiplication of two square matrices of dimension $N \times N$ ($C = A \times B$) requires:
+$$\text{Multiplications} = N^3 = 4000^3 = 64,000,000,000$$
+$$\text{Additions} = N^2 (N - 1) \approx 4000^3 = 64,000,000,000$$
+$$\text{Total Floating-Point Operations (FLOPs)} = 2 N^3 = 128,000,000,000 \text{ FLOPs} = 128 \text{ GFLOPs}$$
 
-### 3. MPI Distributed-Memory Scaling ($3.74\times$ Speedup)
-MPI isolates memory spaces across separate VMs. Scatter and Gather communications require copying $1000$ matrix rows over TCP/IP virtual interfaces. Despite network latency overhead, independent memory channels on each node allow MPI to achieve $3.74\times$ speedup ($92.98$ seconds).
+The memory footprint for three double-precision floating-point matrices ($8$ bytes per element) is:
+$$\text{Memory} = 3 \times N^2 \times 8 \text{ bytes} = 3 \times 16,000,000 \times 8 = 384,000,000 \text{ bytes} \approx 384 \text{ MB}$$
 
-### 4. CUDA GPU Massively Parallel Superiority ($2109.18\times$ Speedup)
-CUDA maps the matrix onto a $2D$ grid of $62,500$ thread blocks ($16 \times 16 = 256$ threads each). The $16,000,000$ logical threads execute simultaneously on hardware Streaming Multiprocessors (SMs), achieving hardware-assisted memory coalescing and hide latency via warp scheduling.
+The **Operational Intensity ($I$)** of matrix multiplication is given by:
+$$I = \frac{\text{Total Operations (FLOPs)}}{\text{Total Memory Accesses (Bytes)}} = \frac{2 N^3}{3 N^2 \times 8} = \frac{N}{12} = \frac{4000}{12} \approx 333.33 \text{ FLOPs / byte}$$
+
+This high operational intensity indicates that dense matrix multiplication is inherently **compute-bound** when matrices fit inside cache, but becomes **memory-bandwidth bound** when cache misses force frequent round-trips to main host RAM.
+
+---
+
+### 9.2 Memory Hierarchy & Cache Locality Bottlenecks
+
+In the standard triple-nested loop ($i, j, k$):
+```c
+for (i = 0; i < N; i++)
+    for (j = 0; j < N; j++)
+        for (k = 0; k < N; k++)
+            C[i * N + j] += A[i * N + k] * B[k * N + j];
+```
+- **Matrix A ($A[i \cdot N + k]$)**: Accessed sequentially along rows ($\text{stride-}1$). Excellent spatial cache locality.
+- **Matrix B ($B[k \cdot N + j]$)**: Accessed along columns ($\text{stride-}N$). Poor spatial cache locality. For $N=4000$, consecutive iterations of loop $k$ jump $4000 \times 8 = 32,000$ bytes in memory, resulting in severe **L1/L2 cache misses**.
+- **Sequential Baseline Performance**: Single-threaded CPU execution achieves only $0.37 \text{ GFLOPS}$ ($348.02 \text{ seconds}$) primarily due to cache line eviction penalties and serial CPU pipeline stalls.
+
+---
+
+### 9.3 Shared-Memory OpenMP Scaling & Contention
+
+OpenMP parallelizes the outer loop using `#pragma omp parallel for private(j, k)` across $8$ logical threads:
+- **Theoretical Speedup**: $8.0\times$ (linear scaling on 8 cores).
+- **Achieved Empirical Speedup**: $2.63\times$ ($132.46 \text{ seconds}$, $0.97 \text{ GFLOPS}$).
+
+**Why OpenMP achieved sub-linear speedup ($2.63\times$ vs $8.00\times$ theoretical)**:
+1. **Shared L3 Cache & Memory Bus Bottleneck**: All 8 threads execute on the same CPU socket, sharing the same L3 cache and memory controller channels. As 8 cores request non-contiguous column elements of Matrix B simultaneously, memory bus saturation occurs.
+2. **False Sharing & Thread Synchronization Overhead**: OpenMP runtime implicit barriers and thread creation/fork-join management introduce overhead.
+
+---
+
+### 9.4 Distributed-Memory MPI IPC & Network Overheads
+
+The MPI implementation partitions Matrix A across a 4-node VM cluster (`master`, `worker1`, `worker2`, `worker3`):
+- **Domain Decomposition**: Each node computes $1000$ rows of Matrix C ($N / P = 4000 / 4 = 1000$ rows).
+- **Achieved Empirical Speedup**: $3.74\times$ ($92.98 \text{ seconds}$, $1.38 \text{ GFLOPS}$).
+
+**Why MPI ($3.74\times$) outperformed OpenMP ($2.63\times$)**:
+1. **Isolated Memory Controllers**: Each virtual machine operates with its own isolated guest RAM address space, doubling the available memory bandwidth pipelines compared to a single shared-memory OS.
+2. **Communication vs Computation Balance**: The total data transferred via `MPI_Scatter` and `MPI_Gather` is $O(N^2)$ bytes ($128 \text{ MB}$ total network traffic), whereas computation scales as $O(N^3)$ operations ($128 \text{ GFLOPs}$). Since computation dominates communication by $1000:1$, network latency is successfully hidden behind local node computation.
+
+---
+
+### 9.5 Massively Parallel CUDA SIMT GPU Architecture
+
+The CUDA implementation offloads the computation to an NVIDIA GPU using a 2D grid layout:
+- **Grid Configuration**: $250 \times 250$ blocks of $16 \times 16$ threads ($62,500$ blocks total).
+- **Logical Threads**: $62,500 \times 256 = 16,000,000$ active logical GPU threads (one thread per matrix element $C[i][j]$).
+
+**Empirical Timing Breakdown**:
+$$\text{Host-to-Device Transfer (A & B)} = 0.009210 \text{ s}$$
+$$\text{Kernel Execution Time (\texttt{matMulKernel})} = 0.146443 \text{ s} \quad (2376.51\times \text{ speedup})$$
+$$\text{Device-to-Host Transfer (C)} = 0.009351 \text{ s}$$
+$$\text{Total CUDA Phase Time} = 0.165004 \text{ s} \quad (2109.18\times \text{ speedup, } 775.74 \text{ GFLOPS})$$
+
+**Why CUDA achieves a $2109.18\times$ performance leap**:
+1. **Single Instruction, Multiple Threads (SIMT)**: NVIDIA Streaming Multiprocessors (SMs) execute $32$-thread warps concurrently in hardware without software thread-context switching overhead.
+2. **Hardware Memory Coalescing**: Adjacent GPU threads within a warp access consecutive global VRAM memory addresses simultaneously, combining multiple memory requests into a single high-speed memory bus transaction.
+3. **Massive Latency Hiding**: When one warp waits for VRAM memory access, the hardware scheduler instantly switches execution to another ready warp in $0$ clock cycles.
+
+---
+
+### 9.6 Amdahl's Law Scaling & Parallel Efficiency
+
+Amdahl's Law defines the maximum speedup $S(P)$ attainable by parallelizing a workload across $P$ processors:
+$$S(P) = \frac{1}{(1 - s) + \frac{s}{P}}$$
+where $s$ is the parallelizable fraction of the workload and $(1 - s)$ is the strictly sequential fraction.
+
+| Paradigm | Processors ($P$) | Execution Time ($T$) | Speedup ($S$) | Parallel Efficiency ($E = S / P$) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Sequential** | $1$ | $348.02 \text{ s}$ | $1.00\times$ | $100.00\%$ |
+| **OpenMP** | $8$ | $132.46 \text{ s}$ | $2.63\times$ | $32.88\%$ |
+| **MPI Cluster** | $4$ | $92.98 \text{ s}$ | $3.74\times$ | $93.50\%$ |
+| **CUDA GPU** | $62,500 \text{ blocks}$ | $0.1650 \text{ s}$ | $2109.18\times$ | N/A (Massively Parallel SIMT) |
+
+**Efficiency Takeaways**:
+- **MPI Cluster Efficiency ($93.50\%$)**: Near-linear scaling due to isolated memory channels and $O(N^3)/O(N^2)$ compute-to-communication dominance.
+- **OpenMP Efficiency ($32.88\%$)**: Memory bus bottlenecks and cache contention limit multi-thread efficiency on single-socket CPUs.
+- **CUDA Efficiency**: Orders-of-magnitude superior compute density, achieving **$874.06 \text{ GFLOPS}$** kernel performance.
 
 ---
 

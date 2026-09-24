@@ -109,54 +109,7 @@ The repository includes both **C** and **C++** versions for every computational 
 
 ---
 
-## 5. Experimental Procedure & Compilation
 
-### Part A: Sequential Matrix Multiplication
-```bash
-# C Compilation & Run
-gcc -O2 src/matrix_sequential.c -o src/matrix_sequential_c
-./src/matrix_sequential_c
-
-# C++ Compilation & Run
-g++ -O2 src/matrix_sequential.cpp -o src/matrix_sequential_cpp
-./src/matrix_sequential_cpp
-```
-
-### Part B: OpenMP Shared-Memory Parallelism
-```bash
-export OMP_NUM_THREADS=8
-
-# C Compilation & Run
-gcc -O2 -fopenmp src/matrix_openmp.c -o src/matrix_openmp_c
-./src/matrix_openmp_c
-
-# C++ Compilation & Run
-g++ -O2 -fopenmp src/matrix_openmp.cpp -o src/matrix_openmp_cpp
-./src/matrix_openmp_cpp
-```
-
-### Part C: MPI Distributed Cluster
-```bash
-# C Compilation & Run
-mpicc -O2 src/matrix_mpi.c -o src/matrix_mpi_c
-mpirun -np 4 --hostfile hosts ./src/matrix_mpi_c
-
-# C++ Compilation & Run
-mpicxx -O2 src/matrix_mpi.cpp -o src/matrix_mpi_cpp
-mpirun -np 4 --hostfile hosts ./src/matrix_mpi_cpp
-```
-
-### Part D: CUDA GPU Acceleration
-```bash
-# CUDA C (.cu) & C++ (.cpp) Compilation & Run
-nvcc -O2 src/matrix_cuda.cu -o src/matrix_cuda_cu
-./src/matrix_cuda_cu
-
-nvcc -O2 src/matrix_cuda.cpp -o src/matrix_cuda_cpp
-./src/matrix_cuda_cpp
-```
-
----
 
 ## 6. Empirical Results & Screenshots
 

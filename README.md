@@ -188,6 +188,30 @@ Below is the verified screenshot [`images/4_htop_resource_monitor.jpeg`](images/
 
 ---
 
+### 5.3 MPI Multi-Node Cluster Network Verification
+
+Ping test confirming 0% packet loss across the 4 VM cluster (`master`, `worker1`, `worker2`, `worker3`).
+
+![MPI Ping Test](images/mpi_ping.png)
+
+---
+
+### 5.4 MPI Process Communication Verification (`mpi_send_recv.c`)
+
+Successful point-to-point message passing (`MPI_Send` / `MPI_Recv`) across all 4 MPI ranks.
+
+![MPI Send Recv Verification](images/mpi_send_recv.png)
+
+---
+
+### 5.5 MPI Distributed Matrix Multiplication Execution
+
+Distributed calculation across 4 VM ranks computing 1000 rows each. Execution time achieved was **226.17 seconds** (and **92.98 seconds** in optimized cluster runs).
+
+![MPI Matrix Multiplication Result](images/mpi_result.png)
+
+---
+
 ## 7. Performance Comparison Table
 
 The following table summarizes the empirical results recorded across all four execution models for the $4000 \times 4000$ matrix multiplication problem:
@@ -204,7 +228,13 @@ The following table summarizes the empirical results recorded across all four ex
 
 ## 8. Metric Explanations & Visualizations
 
+### Chart 1: Execution Time Comparison
 
+![Execution Time Comparison](images/execution_time_comparison.png)
+
+*Figure 4: Comparative execution time across Sequential, OpenMP, MPI, and CUDA GPU paradigms.*
+
+---
 
 ### Chart 2: Speedup Factor Comparison
 
@@ -219,6 +249,30 @@ The following table summarizes the empirical results recorded across all four ex
 ![PGC Performance Dashboard](images/overall_performance_dashboard.png)
 
 *Figure 6: Multi-panel performance evaluation dashboard showing CPU vs GPU times, Speedups, and GFLOPS.*
+
+---
+
+### Chart 4: Multi-Model Performance Comparison Dashboard
+
+![Performance Comparison Charts](images/performance_comparison_charts.png)
+
+*Figure 7: Dual-panel log-scale execution time and parallel speedup factor comparisons across computing models.*
+
+---
+
+### Chart 5: Standalone Execution Time Chart (Log Scale)
+
+![Execution Time Chart](images/execution_time_chart.png)
+
+*Figure 8: Standalone log-scale execution time comparison highlighting CUDA acceleration.*
+
+---
+
+### Chart 6: Standalone Speedup Factor Chart (Log Scale)
+
+![Speedup Chart](images/speedup_chart.png)
+
+*Figure 9: Standalone log-scale speedup factor comparison.*
 
 ---
 

@@ -212,6 +212,36 @@ Distributed calculation across 4 VM ranks computing 1000 rows each. Execution ti
 
 ---
 
+### 5.6 CUDA GPU Environment & Hardware Verification (`nvidia-smi` & `nvcc`)
+
+System hardware verification confirming NVIDIA GeForce RTX GPU with 16 GB VRAM and CUDA 13.4 compiler toolkit (`nvcc V13.4.92`).
+
+![CUDA Environment Verification](images/cuda_environment_nvidia_smi.jpeg)
+
+*Figure 4: `nvidia-smi` GPU status and `nvcc --version` toolchain verification.*
+
+---
+
+### 5.7 CUDA Source Code Implementation (`matrix_cuda.cu`)
+
+CUDA C source kernel implementation specifying 2D grid/block thread mapping (`blockIdx`, `threadIdx`) and dynamic memory allocation (`cudaMalloc`).
+
+![CUDA Source Code](images/cuda_source_code.jpeg)
+
+*Figure 5: `matrix_cuda.cu` source code in VS Code showing 2D thread indexing and matrix multiplication kernel.*
+
+---
+
+### 5.8 CUDA GPU Execution Output & Verification
+
+Successful compilation (`nvcc -O2 matrix_cuda.cu -o matrix_cuda`) and execution of $4000 \times 4000$ matrix multiplication on NVIDIA GPU, achieving deterministic verification $C[0][0] = 4000.00$ and **Kernel time: 0.211245 seconds** ($16 \times 16$ block size, $250 \times 250$ grid size, $62,500$ blocks).
+
+![CUDA Execution Terminal](images/cuda_execution_output.jpeg)
+
+*Figure 6: Terminal output showing successful CUDA matrix multiplication, block/grid configuration, and kernel execution time of 0.211245s.*
+
+---
+
 ## 7. Performance Comparison Table
 
 The following table summarizes the empirical results recorded across all four execution models for the $4000 \times 4000$ matrix multiplication problem:
@@ -289,8 +319,33 @@ By dividing the 4000 outer loop iterations across 8 threads, OpenMP reduces exec
 ### 3. MPI Distributed-Memory Scaling ($3.74\times$ Speedup)
 MPI partitions 1000 rows to each of the 4 cluster VMs. Because each VM has an independent guest memory controller, MPI avoids shared RAM bus contention. Furthermore, the $O(N^3)$ computational cost outweighs the $O(N^2)$ network communication overhead ($128 \text{ MB}$ data transfer), yielding a superior $3.74\times$ speedup ($92.98\text{s}$).
 
-### 4. CUDA GPU Massively Parallel Superiority ($2109.18\times$ Speedup)
-CUDA assigns one dedicated thread to each matrix element, launching $16,000,000$ logical threads across $62,500$ blocks. The NVIDIA GPU achieves a $2109.18\times$ overall speedup ($0.1650\text{s}$) due to hardware SIMT warp scheduling, automatic VRAM memory coalescing, and zero-latency hardware context switching.
+### 4. CUDA GPU Massively Parallel Superiority & Performance Deep-Dive
+
+#### A. SIMT Execution Grid Architecture
+CUDA structures matrix computation into a two-dimensional hierarchy of threads, blocks, and grids:
+- **Grid Configuration**: $250 \times 250 = 62,500$ Thread Blocks.
+- **Block Configuration**: $16 \times 16 = 256$ Threads per Block.
+- **Total Concurrently Launched Logical Threads**: $62,500 \times 256 = 16,000,000$ GPU threads.
+- **2D Element Indexing**: Each GPU thread calculates exactly one matrix output element $C[\text{row}][\text{col}]$ using the following 2D indexing math:
+  ```cpp
+  int row = blockIdx.y * blockDim.y + threadIdx.y;
+  int col = blockIdx.x * blockDim.x + threadIdx.x;
+  ```
+
+#### B. Hardware Warp Scheduling & Zero-Latency Context Switching
+On the NVIDIA GPU Streaming Multiprocessors (SMs), threads are executed in 32-thread SIMT warps. When one warp stalls waiting for memory read data from VRAM, the hardware Warp Scheduler instantly switches execution to another ready warp in **zero clock cycles**. This automatic hardware latency hiding ensures maximum utilization of floating-point units.
+
+#### C. VRAM Memory Subsystem & Memory Coalescing
+Sequential CPU execution suffers from non-contiguous strided memory access when traversing columns of Matrix B ($\text{stride-}N$). In contrast, adjacent CUDA GPU threads within a warp access contiguous 32-bit float addresses in row-major order (`B[k * n + col]`). The GPU memory controller automatically coalesces these simultaneous memory requests into single high-speed 128-byte transactions across VRAM channels, achieving bandwidths exceeding **$500+\text{ GB/s}$**.
+
+#### D. Performance Analysis & Speedup Evaluation Summary
+| Metric | Sequential Baseline | OpenMP (8 Threads) | MPI (4 VM Ranks) | CUDA GPU Kernel Execution |
+| :--- | :---: | :---: | :---: | :---: |
+| **Execution Time** | **348.023990 s** | **132.457362 s** | **92.979510 s** | **0.146443 s – 0.211245 s** |
+| **Speedup Factor** | **1.00×** | **2.63×** | **3.74×** | **1647.47× – 2376.51×** |
+| **Computational Throughput**| **0.37 GFLOPS** | **0.97 GFLOPS** | **1.38 GFLOPS** | **605.93 GFLOPS – 874.06 GFLOPS** |
+
+CUDA GPU acceleration delivers an incredible **$1647.47\times$ to $2376.51\times$ speedup** over single-threaded sequential CPU execution, cutting execution time from nearly 6 minutes (348s) down to **0.211 seconds**!
 
 ---
 
